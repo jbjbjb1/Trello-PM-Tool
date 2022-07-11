@@ -143,6 +143,18 @@ class TrelloCalls():
         return df.to_dict()     # returns as dictionary
 
 
+    def member(self, id, public):
+        """ Get a particular property of a member; username. """
+
+        api_call = f'/1/members/{id}'    # from Trello docs, id is board
+        data = self.auto_load(api_call, f'{id}_member')
+
+        filtered_data = {'id': data['id'], 'fullName': data['fullName'],
+          'username': data['username']}
+
+        return filtered_data     # returns as dictionary
+
+
     def export(self):
         """ Export all checklists to Excel. """
         pass
@@ -153,6 +165,11 @@ class TrelloCalls():
 
         # For boards in workspace group
         a = ts.Workspace(self.settings['user'])
+        
+        # For all users of interest get their id
+        for username in self.settings['filter_usernames']:   # go through usernames we want
+            member = self.member(id=username, public=False)
+
         # For all boards in list
         members_boards = self.members_boards(public=False)     # api for boards user has
         for board_id in self.settings['export_boards']:   # go through boards we want
@@ -161,6 +178,7 @@ class TrelloCalls():
             new_board = ts.Board(id=members_boards['id'][index], name=members_boards['name'][index], 
             desc=members_boards['desc'][index], lists=boards_lists)
             a.boards.append(new_board)
+        
         # Get list of card [ids, title, status, assigned] on board
         for board in a.boards:
             boards_cards = self.boards_cards(id=board.id, public=False)     # api for cards
@@ -170,7 +188,7 @@ class TrelloCalls():
                     idChecklists=boards_cards['idChecklists'][i])
                 board.cards.append(new_card)
             boards_checklists = self.boards_checklists(id=board.id, public=False)     # api for checklists
-            time.sleep(1/(2*10))    # max 100 requests per 10 second
+            time.sleep(2*10/100)    # max 100 requests per 10 second
         
         # Get list of checklists [ids, title] on card
 
