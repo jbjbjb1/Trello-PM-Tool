@@ -1,4 +1,4 @@
-settings.json
-.vscode/launch.json
-output.json
 __pycache__/
+json/
+.vscode/launch.json
+settings.json

@@ -11,3 +11,6 @@ This will be done by extracting every checklist item out of every card in a Trel
 
 ## Up to
 * I started itterating through building up the required data. I am going to hit my API rate limit. I need to re-organise to get ALL cards, lists, checklists etc. from the board upfront then work with that.
+
+## References
+* Trello api reference: https://developer.atlassian.com/cloud/trello/rest/api-group-actions/

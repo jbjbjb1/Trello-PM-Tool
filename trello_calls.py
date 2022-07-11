@@ -6,6 +6,8 @@ import requests
 import json
 import pandas as pd
 import time
+import os
+import shutil
 
 
 class TrelloCalls():
@@ -18,10 +20,10 @@ class TrelloCalls():
             self.settings = json.load(f)[0]
     
 
-    def get_response(self, url_ending):
+    def get_response(self, api_call, fname):
         """" Get a response from the Trello API. """
 
-        url = "https://api.trello.com/" + url_ending
+        url = "https://api.trello.com/" + api_call
 
         headers = {
         "Accept": "application/json"
@@ -41,18 +43,42 @@ class TrelloCalls():
 
         data = json.loads(response.text)
 
-        with open('output.json', 'w', encoding='utf-8') as json_file:   # save to file every time
+        with open(f'json\{fname}.json', 'w', encoding='utf-8') as json_file:   # save to file every time
             json.dump(data, json_file,ensure_ascii=False, indent=4)
 
         return data    # returns in json format
 
+    def auto_load(self, api_call, fname):
+        ''' If the api has already called then load locally. '''
 
-    def api_list_boards(self, public):
-        """ Get a list of all boards and their ID's. """
+        loal_file = f'json\{fname}.json'
+        if os.path.isfile(loal_file):   # if the file exists
+            with open(loal_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        else:
+            print('Loaded api')
+            data = self.get_response(api_call, fname)
+        return data
+
+
+    def delete_api_data(self):
+        """ Delete all data in \json file. """
+
+        cwd = os.path.abspath(os.getcwd())  # current working directory
+        path = os.path.join(cwd, 'json')   
+        try:
+            shutil.rmtree(path)
+        except:
+            print('No previous data loaded.')
+        os.mkdir(path)
+
+
+    def members_boards(self, public):
+        """ Lists the boards that the user is a member of. """
         
         id = self.settings['user']     # the id is fixed because it is the user accessing
-        url_ending = "1/members/" + id + "/boards"
-        data = self.get_response(url_ending)
+        api_call = f'/1/members/{id}/boards'    # from Trello docs
+        data = self.auto_load(api_call, 'me_boards')
 
         df = pd.DataFrame(data)     # put in Pandas dataframe
         df = df.loc[:, df.columns.intersection(['name', 'desc', 'closed', 'id', 'idOrganization'])]   # get only required columns
@@ -64,11 +90,11 @@ class TrelloCalls():
         return df.to_dict()     # returns as dictionary
 
 
-    def board_lists(self, id, public):
-        """ Get a list of all lists on a board. """
+    def boards_lists(self, id, public):
+        """ Get the Lists on a Board. """
 
-        url_ending = "1/boards/" + id + "/lists"
-        data = self.get_response(url_ending)
+        api_call = f'/1/boards/{id}/lists'    # from Trello docs, id is board
+        data = self.auto_load(api_call, f'{id}_boards_lists')
 
         df = pd.DataFrame(data)     # put in Pandas dataframe
         df = df.loc[:, df.columns.intersection(['id', 'name', 'closed'])]   # get only required columns
@@ -81,12 +107,11 @@ class TrelloCalls():
 
         return df.to_dict()     # returns as dictionary
 
+    def boards_cards(self, id, public):
+        """ Get all of the open Cards on a Board. """
 
-    def api_list_cards(self, id, public):
-        """ Get a list of all cards and their ID's. """
-
-        url_ending = "1/boards/" + id + "/cards"
-        data = self.get_response(url_ending)
+        api_call = f'/1/boards/{id}/cards'    # from Trello docs, id is board
+        data = self.auto_load(api_call, f'{id}_boards_cards')
 
         df = pd.DataFrame(data)     # put in Pandas dataframe
         df = df.loc[:, df.columns.intersection(['id', 'name', 'desc', 'idList', 'idMembers', 'closed', 'idChecklists'])]   # get only required columns
@@ -95,6 +120,25 @@ class TrelloCalls():
         if public:
             print('Listing all cards:')
             print(df.loc[:,['name', 'idMembers']].head()) 
+
+        return df.to_dict()     # returns as dictionary
+
+
+    def boards_checklists(self, id, public):
+        """ Get all of the checklists on a Board. """
+
+        api_call = f'/1/boards/{id}/checklists'    # from Trello docs, id is board
+        data = self.auto_load(api_call, f'{id}_boards_checklists')
+
+        df = pd.DataFrame(data)     # put in Pandas dataframe
+        '''
+        df = df.loc[:, df.columns.intersection(['id', 'name', 'desc', 'idList', 'idMembers', 'closed', 'idChecklists'])]   # get only required columns
+        df = df.drop(df[df.closed == True].index) # drop any closed cards
+        df = df[['id', 'name', 'desc', 'idList', 'idMembers', 'idChecklists']]   # re-order columns
+        if public:
+            print('Listing all cards:')
+            print(df.loc[:,['name', 'idMembers']].head()) 
+        '''
 
         return df.to_dict()     # returns as dictionary
 
@@ -110,25 +154,26 @@ class TrelloCalls():
         # For boards in workspace group
         a = ts.Workspace(self.settings['user'])
         # For all boards in list
-        boards_api = self.api_list_boards(public=False)     # call api
+        members_boards = self.members_boards(public=False)     # api for boards user has
         for board_id in self.settings['export_boards']:   # go through boards we want
-            lists_api = self.board_lists(id=board_id, public=False)  # get lists on the board
-            index = list(boards_api['id'].values()).index(board_id)   # find what index number the desired board is
-            new_board = ts.Board(id=boards_api['id'][index], name=boards_api['name'][index], 
-            desc=boards_api['desc'][index], lists=lists_api)
+            boards_lists = self.boards_lists(id=board_id, public=False)  # api for board lists
+            index = list(members_boards['id'].values()).index(board_id)   # find what index number the desired board is
+            new_board = ts.Board(id=members_boards['id'][index], name=members_boards['name'][index], 
+            desc=members_boards['desc'][index], lists=boards_lists)
             a.boards.append(new_board)
         # Get list of card [ids, title, status, assigned] on board
         for board in a.boards:
-            cards_api = self.api_list_cards(id=board.id, public=False)     # call api
-            for i in range(len(cards_api['id'])):
-                new_card = ts.Card(id=cards_api['id'][i], name=cards_api['name'][i], desc=cards_api['desc'][i],
-                 idList=cards_api['idList'][i], idMembers=cards_api['idMembers'][i], idChecklists=cards_api['idChecklists'][i])
+            boards_cards = self.boards_cards(id=board.id, public=False)     # api for cards
+            for i in range(len(boards_cards['id'])):
+                new_card = ts.Card(id=boards_cards['id'][i], name=boards_cards['name'][i], desc=boards_cards['desc'][i],
+                    idList=boards_cards['idList'][i], idMembers=boards_cards['idMembers'][i], 
+                    idChecklists=boards_cards['idChecklists'][i])
                 board.cards.append(new_card)
-            
-            print('Hello world')
+            boards_checklists = self.boards_checklists(id=board.id, public=False)     # api for checklists
+            time.sleep(1/(2*10))    # max 100 requests per 10 second
         
         # Get list of checklists [ids, title] on card
-        print('Hello world')
+
         # Get checkitems [ids, name, assigned, due date, complete] on checklists on card
 
         pass

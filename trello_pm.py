@@ -10,8 +10,11 @@ run = tc.TrelloCalls()  # initate class
 choice = ''
 
 while True:   
-    choice = input('\nList boards (1), Export checklists (2): ')    
+    choice = input('\nLoad current data (1), Refresh api data (2), Export checklists (3): ')    
     if choice == '1':
-        run.api_list_boards(public=True)
+        run.get_data()
     elif choice == '2':
-        run.get_data()  # TODO will need to end up exporting
+        run.delete_api_data()
+        run.get_data()
+    elif choice == '3':
+        run.export_checklist()  # TODO will need to end up exporting
