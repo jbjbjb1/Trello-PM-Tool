@@ -1,7 +1,10 @@
 [
    {
-      "user": "myusername",
-      "key": "abc",
-      "token": "def"
+      "user": "me",
+      "key": "a",
+      "token": "a",
+      "export_boards": ["a", "a", "a"],
+      "card_list": ["a", "a", "a"],
+      "filter_usernames": ["a", "a", "a", "a"]
    }
 ]
