@@ -1,5 +1,6 @@
 # Logic behind getting date from Trello API
 
+
 import trello_structure as ts
 
 import requests
@@ -189,12 +190,5 @@ class TrelloCalls():
                 board.cards.append(new_card)
             boards_checklists = self.boards_checklists(id=board.id, public=False)     # api for checklists
             time.sleep(2*10/100)    # max 100 requests per 10 second
-        
-        # Get list of checklists [ids, title] on card
 
-        # Get checkitems [ids, name, assigned, due date, complete] on checklists on card
-
-        pass
-
-    def export_checklist(self):
-        """ Export all checklists to Excel. """
+            return a
