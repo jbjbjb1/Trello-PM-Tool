@@ -8,8 +8,8 @@ import trello_export as te
 # Terminal line interation for user
 
 
-run = tc.TrelloCalls()  # initate class
-export = te.TrelloExport()  # exports data
+run = tc.TrelloCalls()  # initate data collection & storage class
+
 choice = ''
 
 while True:   
@@ -20,4 +20,5 @@ while True:
         run.delete_api_data()
         run.a = run.get_data()  # save data to instance of class so it can be used later
     elif choice == '3':
-        export.export_checklist(run.a)
+        export = te.TrelloExport(run.a)  # initial export class
+        export.export_checklist()

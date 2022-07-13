@@ -5,39 +5,65 @@ class Workspace():
 
     def __init__(self, id):
         self.id = id
+        self.members = []
         self.boards = []
+
+
+class Members():
+    """ Storage structure for members. """
+
+    def __init__(self, id, username, fullName):
+        self.id = id
+        self.username = username
+        self.fullName = fullName
 
 
 class Board():
     """ Storage structure for a board. """
 
-    def __init__(self, id, name, desc, lists):
+    def __init__(self, id, name, desc):
         self.id = id
         self.name = name
         self.desc = desc
-        self.lists = lists     # dictionary of list name and id
+        self.lists = []
         self.cards = []
+
+
+class Lists():
+    """ Storage structure for lists. """
+
+    def __init__(self, id, name):
+        self.id = id
+        self.name = name
 
 
 class Card():
     """ Storage structure for a card. """
 
-    def __init__(self, id, name, desc, idList, idMembers, idChecklists):
+    def __init__(self, id, name, desc, idList, idMembers):
         self.id = id
         self.name = name
-        self.desc = desc[:30]   # first 30 characters only
+        self.desc = desc[:40]   # first 30 characters only
         self.idList = idList    # id of list it is a part of
         self.idMembers = idMembers  # id of members assigned  
-        self.idChecklists = idChecklists
         self.checklists = []
 
 
 class Checklist():
-    """ Storage structure for a checkitems. """
+    """ Storage structure for a checklist. """
 
-    def __init__(self, id, name, assigned, status):
+    def __init__(self, id, name):
         self.id = id
         self.name = name
-        self.assigned = assigned
-        self.status = status
         self.checkitem = []
+
+
+class Checkitem():
+    """ Storage structure for a checkitems. """
+
+    def __init__(self, id, state, name, due, idmember):
+        self.id = id
+        self.state = state
+        self.name = name
+        self.due = due
+        self.idmember = idmember

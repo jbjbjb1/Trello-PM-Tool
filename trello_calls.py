@@ -1,4 +1,4 @@
-# Logic behind getting date from Trello API
+# Logic behind getting date from Trello API and storing data
 
 
 import trello_structure as ts
@@ -167,28 +167,46 @@ class TrelloCalls():
         # For boards in workspace group
         a = ts.Workspace(self.settings['user'])
         
-        # For all users of interest get their id
+        # For all members of interest get their id info
         for username in self.settings['filter_usernames']:   # go through usernames we want
-            member = self.member(id=username, public=False)
+            member_info = self.member(id=username, public=False)
+            new_member = ts.Members(id=member_info['id'], username=member_info['username'], fullName=member_info['fullName'])
+            a.members.append(new_member)
 
-        # For all boards in list
+        # For all boards of interest
         members_boards = self.members_boards(public=False)     # api for boards user has
         for board_id in self.settings['export_boards']:   # go through boards we want
-            boards_lists = self.boards_lists(id=board_id, public=False)  # api for board lists
             index = list(members_boards['id'].values()).index(board_id)   # find what index number the desired board is
             new_board = ts.Board(id=members_boards['id'][index], name=members_boards['name'][index], 
-            desc=members_boards['desc'][index], lists=boards_lists)
+            desc=members_boards['desc'][index])
             a.boards.append(new_board)
-        
-        # Get list of card [ids, title, status, assigned] on board
+       
         for board in a.boards:
+            # Get lists in that board
+            boards_lists = self.boards_lists(id=board_id, public=False)  # api for board lists
+            new_board_lists = ts.Lists(id=boards_lists['id'], name=boards_lists['name'])
+            board.lists.append(new_board_lists)
+
+            # Get cards [ids, title, status, assigned] on board
             boards_cards = self.boards_cards(id=board.id, public=False)     # api for cards
             for i in range(len(boards_cards['id'])):
                 new_card = ts.Card(id=boards_cards['id'][i], name=boards_cards['name'][i], desc=boards_cards['desc'][i],
-                    idList=boards_cards['idList'][i], idMembers=boards_cards['idMembers'][i], 
-                    idChecklists=boards_cards['idChecklists'][i])
+                    idList=boards_cards['idList'][i], idMembers=boards_cards['idMembers'][i])
                 board.cards.append(new_card)
+
+            # Get checklists [ids, title, status, assigned] on card, then checkitems          
             boards_checklists = self.boards_checklists(id=board.id, public=False)     # api for checklists
+            
+            for i in range(len(boards_checklists['id'])):   # itterate through every board and card to assign each one
+                for board in a.boards:
+                    if boards_checklists['idBoard'][i] == board.id:
+                        for card in board.cards:
+                            if boards_checklists['idCard'][i] == card.id:
+                                card.checklists.append(ts.Checklist(id=boards_checklists['id'][i], name=boards_checklists['name'][i]))
+                                for checkitem in boards_checklists['checkItems'][i]:
+                                    new_checkitem = ts.Checkitem(id=checkitem['id'], state=checkitem['state'], name=checkitem['name'], due=checkitem['due'], 
+                                        idmember=checkitem['idMember'])
+                                    card.checklists[-1].checkitem.append(new_checkitem) # add to last checkitem (json boards_checklists groups checkitems under checklist)
             time.sleep(2*10/100)    # max 100 requests per 10 second
 
             return a
