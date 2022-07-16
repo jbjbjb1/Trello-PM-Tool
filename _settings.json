@@ -5,6 +5,7 @@
       "token": "a",
       "export_boards": ["a", "a", "a"],
       "card_list": ["a", "a", "a"],
-      "filter_usernames": ["a", "a", "a", "a"]
+      "filter_usernames": ["a", "a", "a", "a"],
+      "filter_startstring": ["a", "a"]
    }
 ]
