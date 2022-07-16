@@ -3,3 +3,4 @@ json/
 .vscode/launch.json
 settings.json
 export.csv
+export_count.png
