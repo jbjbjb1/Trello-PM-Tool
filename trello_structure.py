@@ -40,12 +40,14 @@ class Lists():
 class Card():
     """ Storage structure for a card. """
 
-    def __init__(self, id, name, desc, idList, idMembers):
+    def __init__(self, id, name, desc, idList, idMembers, shortUrl):
         self.id = id
         self.name = name
         self.desc = desc[:40]   # first 30 characters only
         self.idList = idList    # id of list it is a part of
-        self.idMembers = idMembers  # id of members assigned  
+        self.nameList = ''    # name of the list
+        self.idMembers = idMembers  # id of members assigned
+        self.shortUrl = shortUrl    # short url  
         self.checklists = []
 
 
@@ -67,3 +69,4 @@ class Checkitem():
         self.name = name
         self.due = due
         self.idmember = idmember
+        self.nameMember = ''    # member as their name

@@ -100,7 +100,6 @@ class TrelloCalls():
         df = pd.DataFrame(data)     # put in Pandas dataframe
         df = df.loc[:, df.columns.intersection(['id', 'name', 'closed'])]   # get only required columns
         df = df.drop(df[df.closed == True].index) # drop any closed
-        df = df[df['name'].isin(self.settings['card_list'])] # drop any not in pre-defined settings list
         df = df[['id', 'name']]   # re-order columns
         if public:
             print('Listing all cards:')
@@ -115,9 +114,9 @@ class TrelloCalls():
         data = self.auto_load(api_call, f'{id}_boards_cards')
 
         df = pd.DataFrame(data)     # put in Pandas dataframe
-        df = df.loc[:, df.columns.intersection(['id', 'name', 'desc', 'idList', 'idMembers', 'closed', 'idChecklists'])]   # get only required columns
+        df = df.loc[:, df.columns.intersection(['id', 'name', 'desc', 'idList', 'idMembers', 'closed', 'idChecklists', 'shortUrl'])]   # get only required columns
         df = df.drop(df[df.closed == True].index) # drop any closed cards
-        df = df[['id', 'name', 'desc', 'idList', 'idMembers', 'idChecklists']]   # re-order columns
+        df = df[['id', 'name', 'desc', 'idList', 'idMembers', 'idChecklists', 'shortUrl']]   # re-order columns
         if public:
             print('Listing all cards:')
             print(df.loc[:,['name', 'idMembers']].head()) 
@@ -183,15 +182,20 @@ class TrelloCalls():
        
         for board in a.boards:
             # Get lists in that board
-            boards_lists = self.boards_lists(id=board_id, public=False)  # api for board lists
-            new_board_lists = ts.Lists(id=boards_lists['id'], name=boards_lists['name'])
-            board.lists.append(new_board_lists)
+            boards_lists = self.boards_lists(id=board.id, public=False)  # api for board lists
+            for i in range(len(boards_lists['id'])):
+                try:
+                    new_board_lists = ts.Lists(id=boards_lists['id'][i], name=boards_lists['name'][i])
+                    board.lists.append(new_board_lists)
+                except KeyError:
+                    pass    # a list was dropped becasue it did not meet the condition
+
 
             # Get cards [ids, title, status, assigned] on board
             boards_cards = self.boards_cards(id=board.id, public=False)     # api for cards
             for i in range(len(boards_cards['id'])):
                 new_card = ts.Card(id=boards_cards['id'][i], name=boards_cards['name'][i], desc=boards_cards['desc'][i],
-                    idList=boards_cards['idList'][i], idMembers=boards_cards['idMembers'][i])
+                    idList=boards_cards['idList'][i], idMembers=boards_cards['idMembers'][i], shortUrl=boards_cards['shortUrl'][i])
                 board.cards.append(new_card)
 
             # Get checklists [ids, title, status, assigned] on card, then checkitems          
@@ -204,7 +208,12 @@ class TrelloCalls():
                             if boards_checklists['idCard'][i] == card.id:
                                 card.checklists.append(ts.Checklist(id=boards_checklists['id'][i], name=boards_checklists['name'][i]))
                                 for checkitem in boards_checklists['checkItems'][i]:
-                                    new_checkitem = ts.Checkitem(id=checkitem['id'], state=checkitem['state'], name=checkitem['name'], due=checkitem['due'], 
+                                    # Handle some checkitems not having dates
+                                    due = ''
+                                    if checkitem['due'] != None:
+                                        due = checkitem['due'][:10]
+                                    # Load data into new line
+                                    new_checkitem = ts.Checkitem(id=checkitem['id'], state=checkitem['state'], name=checkitem['name'], due=due, 
                                         idmember=checkitem['idMember'])
                                     card.checklists[-1].checkitem.append(new_checkitem) # add to last checkitem (json boards_checklists groups checkitems under checklist)
             time.sleep(2*10/100)    # max 100 requests per 10 second
