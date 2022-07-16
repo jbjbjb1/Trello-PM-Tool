@@ -13,12 +13,11 @@ run = tc.TrelloCalls()  # initate data collection & storage class
 choice = ''
 
 while True:   
-    choice = input('\nLoad current data (1), Refresh api data (2), Export checklists (3): ')    
+    run.a = run.get_data()  # get data on load
+    choice = input('\nExport checklists (1), refresh api data (2), : ')    
     if choice == '1':
-        run.a = run.get_data()  # save data to instance of class so it can be used later
-    elif choice == '2':
-        run.delete_api_data()
-        run.a = run.get_data()  # save data to instance of class so it can be used later
-    elif choice == '3':
         export = te.TrelloExport(run.a)  # initial export class
         export.export_checklist()
+    elif choice == '2':
+        run.delete_api_data()   # delete current data and re-load
+        run.a = run.get_data()

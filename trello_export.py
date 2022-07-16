@@ -2,6 +2,7 @@
 
 import pandas as pd
 import json
+import matplotlib.pyplot as plt
 
 
 class TrelloExport():
@@ -27,12 +28,10 @@ class TrelloExport():
                         card.nameList = list.name
                 # Don't add cards not in filtered lists
                 if card.nameList not in self.settings['card_list']:
-                    print('Card list does not meet filter')
                     continue
                 # Don't add if does not meet filtered string criteria
                 start_string = card.name[:4]
                 if start_string not in self.settings['filter_startstring']:
-                    print('Card title does not meet filter')
                     continue
 
                 # Create new entry for each checklist item
@@ -42,6 +41,9 @@ class TrelloExport():
                         for member in self.a.members:
                             if checkitem.idmember == member.id:
                                 checkitem.nameMember = member.fullName
+                        # Pass over if checkitem is complete
+                        if checkitem.state == 'complete':
+                            continue
                         # Add new line
                         new_line = {'Card title':card.name, 'Card Link':card.shortUrl, 'List':card.nameList, 'Checklist':checklist.name, 
                             'Name':checkitem.name, 'Due':checkitem.due, 'Member':checkitem.nameMember}
@@ -58,5 +60,22 @@ class TrelloExport():
         df = self.load_data_table()   # load all checklists into dataframe
         self.df = df                  # save to class
         df.to_csv('export.csv', index=False)        # export to csv
+        print('Export of all checklists saved as csv.')
+
+        # Extra export of graphics
+        self.export_graphics()
+
+    
+    def export_graphics(self):
+        """ Export an image of the count of checklist items. """
+
+        # Make a data of count of checklis items assigned
+        series = pd.Series(self.df.Member)
+        series_count = series.value_counts()
+        series_count.plot(kind='bar')
+        plt.tight_layout()
+        plt.show()
+        plt.savefig('export_count.png')
+        print('Plot of counts saved.')
 
         
