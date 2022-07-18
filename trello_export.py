@@ -31,8 +31,10 @@ class TrelloExport():
                     continue
                 # Don't add if does not meet filtered string criteria
                 start_string = card.name[:4]
-                if start_string not in self.settings['filter_startstring']:
-                    continue
+                if len(self.settings['filter_startstring']) != 0:   # only fiter if there is more than one item in list
+                    # TODO issue is it does not capture tasks assigned in other regions to our team
+                    if start_string not in self.settings['filter_startstring']:
+                        continue
 
                 # Create new entry for each checklist item
                 for checklist in card.checklists:

@@ -10,6 +10,7 @@ This will be done by extracting every checklist item out of every card in a Trel
 | abc | url | abc | abc | abc| date | abc |
 
 ## Improvements
+* Issue is it does not capture tasks assigned in other regions to our team, filtering logic needs to be improved
 * trello_exports dataframe needs to be saved back to something global so it can be used for graphical reports
 * Export Excel with tab for each person and unassigned
 * Generate reports of quantities of items under each person by date range
