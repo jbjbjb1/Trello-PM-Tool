@@ -10,14 +10,15 @@ This will be done by extracting every checklist item out of every card in a Trel
 | abc | abc | url | abc | abc | abc| date | abc |
 
 ## Improvements
-* Issue not capturing data on some boards
-* Add to Excel the board title
 * Issue is it does not capture tasks assigned in other regions to our team, filtering logic needs to be improved
 * trello_exports dataframe needs to be saved back to something global so it can be used for graphical reports
 * Export Excel with tab for each person and unassigned
+* Generate graphic of sum of hours for each person by week
 * Generate reports of quantities of items under each person by date range
 
 ## Work done
+* 21/7/22 Add to Excel the board title
+* 21/7/22 Issue not capturing data on some boards
 * 16/7/22 First revision to main branch of working code.
 
 ## References
