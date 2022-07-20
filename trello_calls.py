@@ -131,14 +131,6 @@ class TrelloCalls():
         data = self.auto_load(api_call, f'{id}_boards_checklists')
 
         df = pd.DataFrame(data)     # put in Pandas dataframe
-        '''
-        df = df.loc[:, df.columns.intersection(['id', 'name', 'desc', 'idList', 'idMembers', 'closed', 'idChecklists'])]   # get only required columns
-        df = df.drop(df[df.closed == True].index) # drop any closed cards
-        df = df[['id', 'name', 'desc', 'idList', 'idMembers', 'idChecklists']]   # re-order columns
-        if public:
-            print('Listing all cards:')
-            print(df.loc[:,['name', 'idMembers']].head()) 
-        '''
 
         return df.to_dict()     # returns as dictionary
 
@@ -218,4 +210,4 @@ class TrelloCalls():
                                     card.checklists[-1].checkitem.append(new_checkitem) # add to last checkitem (json boards_checklists groups checkitems under checklist)
             time.sleep(2*10/100)    # max 100 requests per 10 second
 
-            return a
+        return a

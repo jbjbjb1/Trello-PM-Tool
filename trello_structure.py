@@ -70,3 +70,17 @@ class Checkitem():
         self.due = due
         self.idmember = idmember
         self.nameMember = ''    # member as their name
+        self.hours = 0
+        self.get_time()   # get the hours
+    
+    def get_time(self):
+        """ Gets the hours for the task and saves it back to the checkitem, cleans name. """
+        
+        if '|' in self.name:
+            part_a = self.name.split('|')
+            part_b = part_a[-1]
+            part_c = part_b.strip()
+            if part_c.isdigit():
+                self.hours = part_c     # add hours
+                self.name =  part_a[0].strip()   # clean description to remove hours
+

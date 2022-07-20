@@ -47,8 +47,8 @@ class TrelloExport():
                         if checkitem.state == 'complete':
                             continue
                         # Add new line
-                        new_line = {'Card title':card.name, 'Card Link':card.shortUrl, 'List':card.nameList, 'Checklist':checklist.name, 
-                            'Name':checkitem.name, 'Due':checkitem.due, 'Member':checkitem.nameMember}
+                        new_line = {'Board':board.name, 'Card title':card.name, 'Card Link':card.shortUrl, 'List':card.nameList, 'Checklist':checklist.name, 
+                            'Name':checkitem.name, 'Due':checkitem.due, 'Member':checkitem.nameMember, 'Hours':checkitem.hours}
                         data.append(new_line)
 
         df = pd.DataFrame(data)
