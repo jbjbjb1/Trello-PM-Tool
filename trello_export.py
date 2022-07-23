@@ -1,6 +1,7 @@
 # Logic to export data from Trello in readable format.
 
 import pandas as pd
+import numpy as np
 import json
 import matplotlib.pyplot as plt
 
@@ -64,20 +65,49 @@ class TrelloExport():
         df.to_csv('export.csv', index=False)        # export to csv
         print('Export of all checklists saved as csv.')
 
+        # Extra export of workload per week per user
+        self.export_workload()
+
         # Extra export of graphics
         self.export_graphics()
 
-    
+
+    def export_workload(self):
+        """ Export workload per week per user. """
+
+        # Transform df to get sum of hours by user per week
+        dfw = self.df.copy()
+        dfw['Member'].replace('', np.nan, inplace=True)
+        dfw.dropna(subset=['Member'], inplace=True)     # drop rows with no member assigned
+        dfw['Hours'] = dfw['Hours'].astype(str).astype(int)     # convert Hours to int
+        dfw['Due'] = pd.to_datetime(dfw['Due']) - pd.to_timedelta(7, unit='d')  # transform datetime, subtrat week
+        dfw = dfw.groupby(['Member', 
+            pd.Grouper(key='Due', freq='W-MON')])['Hours'].sum().reset_index().sort_values('Due')   # group and sum
+        print('Grouped')
+
+        # Create dataframe to eventually merge of hours avail
+        # TODO Use data from settings.json, below code tempoary
+        dfw['weekHoursAvail'] = 38*60/100
+
+
+
+
+
     def export_graphics(self):
         """ Export an image of the count of checklist items. """
 
         # Make a data of count of checklis items assigned
-        series = pd.Series(self.df.Member)
+        self.df['Member'].replace('', np.nan, inplace=True)
+        self.df.dropna(subset=['Member'], inplace=True)     # drop rows with no member assigned
+        series = pd.Series(self.df.Member)                # get values for plotting
         series_count = series.value_counts()
         series_count.plot(kind='bar')
+        plt.xlabel('User')
+        plt.ylabel('Number tasks assigned')
+        plt.title("Distribution of engineering tasks")
         plt.tight_layout()
-        plt.show()
         plt.savefig('export_count.png')
+        #plt.show()
         print('Plot of counts saved.')
 
         

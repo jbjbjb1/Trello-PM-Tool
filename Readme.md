@@ -5,9 +5,9 @@ The purpose of this app is to be able to extract reports from checklist items on
 
 This will be done by extracting every checklist item out of every card in a Trello board and adding it as a line on a Excel sheet. The format of the sheet will be (ordered by date, decending order):
 
-| Board title  | Card title  | Card Link | List | Checklist | Name | Due | Member |
-| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
-| abc | abc | url | abc | abc | abc| date | abc |
+| Board title  | Card title  | Card Link | List | Checklist | Name | Due | Member | Hours |
+| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
+| abc | abc | url | abc | abc | abc| date | abc | 123 |
 
 ## Improvements
 * Issue is it does not capture tasks assigned in other regions to our team, filtering logic needs to be improved

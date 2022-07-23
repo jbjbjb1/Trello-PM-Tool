@@ -12,10 +12,12 @@ class Workspace():
 class Members():
     """ Storage structure for members. """
 
-    def __init__(self, id, username, fullName):
+    def __init__(self, id, username, fullName, weekHours, workPct):
         self.id = id
         self.username = username
         self.fullName = fullName
+        self.weekHours = weekHours
+        self.workPct = workPct
 
 
 class Board():

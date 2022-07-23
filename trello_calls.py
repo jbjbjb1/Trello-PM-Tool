@@ -158,10 +158,11 @@ class TrelloCalls():
         # For boards in workspace group
         a = ts.Workspace(self.settings['user'])
         
-        # For all members of interest get their id info
-        for username in self.settings['filter_usernames']:   # go through usernames we want
-            member_info = self.member(id=username, public=False)
-            new_member = ts.Members(id=member_info['id'], username=member_info['username'], fullName=member_info['fullName'])
+        # For all members of interest get info about each of them needed
+        for user in self.settings['filter_users']:   # go through users we have in settings
+            member_info = self.member(id=user['username'], public=False)
+            new_member = ts.Members(id=member_info['id'], username=member_info['username'], fullName=member_info['fullName'], 
+                weekHours=user['weekHours'], workPct=user['workPct'])
             a.members.append(new_member)
 
         # For all boards of interest
