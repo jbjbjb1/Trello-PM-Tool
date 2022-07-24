@@ -87,10 +87,12 @@ class TrelloExport():
 
         # Create dataframe to eventually merge of hours avail
         # TODO Use data from settings.json, below code tempoary
-        dfw['weekHoursAvail'] = 38*60/100
+        # dfw['weekHoursAvail'] = 38*60/100
 
-
-
+        # Export to csv
+        self.dfw = dfw                              # save to class
+        dfw.to_csv('workload.csv', index=False)        # export to csv
+        print('Export of workload saved as csv.')
 
 
     def export_graphics(self):
