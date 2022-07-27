@@ -9,6 +9,9 @@ This will be done by extracting every checklist item out of every card in a Trel
 | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
 | abc | abc | url | abc | abc | abc| date | abc | 123 |
 
+## Using the app
+* When selecting to export a report for yourself, in the settings file you need to be the first user listed in "filter_users"
+
 ## Improvements
 * Issue is it does not capture tasks assigned in other regions to our team, filtering logic needs to be improved
 * trello_exports dataframe needs to be saved back to something global so it can be used for graphical reports

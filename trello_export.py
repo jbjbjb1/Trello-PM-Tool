@@ -57,19 +57,20 @@ class TrelloExport():
         return df
 
 
-    def export_checklist(self):
+    def export_checklist(self, me=False):
         """ Export all checklists to Excel. """
 
         df = self.load_data_table()   # load all checklists into dataframe
         self.df = df                  # save to class
+
+        # Filter if required
+        if me:
+            df = df.loc[df['Member'] == self.a.members[0].fullName] # filter that user only
+            # TODO sort by date
+        else:
+            pass
         df.to_csv('export.csv', index=False)        # export to csv
         print('Export of all checklists saved as csv.')
-
-        # Extra export of workload per week per user
-        self.export_workload()
-
-        # Extra export of graphics
-        self.export_graphics()
 
 
     def export_workload(self):
@@ -83,7 +84,6 @@ class TrelloExport():
         dfw['Due'] = pd.to_datetime(dfw['Due']) - pd.to_timedelta(7, unit='d')  # transform datetime, subtrat week
         dfw = dfw.groupby(['Member', 
             pd.Grouper(key='Due', freq='W-MON')])['Hours'].sum().reset_index().sort_values('Due')   # group and sum
-        print('Grouped')
 
         # Create dataframe to eventually merge of hours avail
         # TODO Use data from settings.json, below code tempoary
