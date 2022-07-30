@@ -5,7 +5,7 @@ import numpy as np
 import json
 from datetime import date, timedelta
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
+import matplotlib.ticker as ticker
 
 
 class TrelloExport():
@@ -95,25 +95,28 @@ class TrelloExport():
         dfw_p = pd.pivot_table(dfw, values="Hours", index="Due", columns="Member")
         dfw_p = dfw_p.fillna(0)
         #greater than the start date and smaller than the end date
-        #start_date = np.datetime64('today', 'D') - np.timedelta64(1, 'D')
-        #end_date = np.datetime64('today', 'D') + np.timedelta64(32, 'D')   
-        #mask = (dfw_p.index > start_date) & (dfw_p.index <= end_date)
-        #dfw_p = dfw_p.loc[mask]
+        start_date = np.datetime64('today', 'D') - np.timedelta64(1, 'D')
+        end_date = np.datetime64('today', 'D') + np.timedelta64(60, 'D')   
+        mask = (dfw_p.index > start_date) & (dfw_p.index <= end_date)
+        dfw_p = dfw_p.loc[mask]
 
+        dates = dfw_p.index
         fig, ax = plt.subplots()
         dfw_p.plot.bar(ax=ax)
-        #ax.set_xticks(dfw_p.index)
 
-        # use formatters to specify major and minor ticks
-        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
-        ax.xaxis.set_minor_formatter(mdates.DateFormatter("%Y-%m-%d"))
-        _ = plt.xticks(rotation=90)  
+        # Make most of the ticklabels empty so the labels don't get too crowded
+        ticklabels = ['']*len(dfw_p.index)
+        # Every 1th ticklable shows the month and day
+        ticklabels[::1] = [item.strftime('%b %d') for item in dfw_p.index[::1]]
+        ax.xaxis.set_major_formatter(ticker.FixedFormatter(ticklabels))
+        plt.gcf().autofmt_xdate()
         
         plt.xlabel('Week ending')
-        plt.ylabel('% Capacity')
-        plt.title("Engineering workload for next month")
+        plt.ylabel('Hours assigned')
+        plt.title("Engineering workload for next 60 days")
         plt.tight_layout()
         plt.show()
+        plt.savefig('export_workload.png')
 
         # Export to csv
         self.dfw = dfw                              # save to class
