@@ -3,7 +3,9 @@
 import pandas as pd
 import numpy as np
 import json
+from datetime import date, timedelta
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 
 class TrelloExport():
@@ -88,6 +90,30 @@ class TrelloExport():
         # Create dataframe to eventually merge of hours avail
         # TODO Use data from settings.json, below code tempoary
         # dfw['weekHoursAvail'] = 38*60/100
+
+        # Plot
+        dfw_p = pd.pivot_table(dfw, values="Hours", index="Due", columns="Member")
+        dfw_p = dfw_p.fillna(0)
+        #greater than the start date and smaller than the end date
+        #start_date = np.datetime64('today', 'D') - np.timedelta64(1, 'D')
+        #end_date = np.datetime64('today', 'D') + np.timedelta64(32, 'D')   
+        #mask = (dfw_p.index > start_date) & (dfw_p.index <= end_date)
+        #dfw_p = dfw_p.loc[mask]
+
+        fig, ax = plt.subplots()
+        dfw_p.plot.bar(ax=ax)
+        #ax.set_xticks(dfw_p.index)
+
+        # use formatters to specify major and minor ticks
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
+        ax.xaxis.set_minor_formatter(mdates.DateFormatter("%Y-%m-%d"))
+        _ = plt.xticks(rotation=90)  
+        
+        plt.xlabel('Week ending')
+        plt.ylabel('% Capacity')
+        plt.title("Engineering workload for next month")
+        plt.tight_layout()
+        plt.show()
 
         # Export to csv
         self.dfw = dfw                              # save to class

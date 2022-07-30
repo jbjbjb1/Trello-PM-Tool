@@ -13,16 +13,18 @@ This will be done by extracting every checklist item out of every card in a Trel
 * When selecting to export a report for yourself, in the settings file you need to be the first user listed in "filter_users"
 
 ## Improvements
-* Issue is it does not capture tasks assigned in other regions to our team, filtering logic needs to be improved
-* trello_exports dataframe needs to be saved back to something global so it can be used for graphical reports
-* Export Excel with tab for each person and unassigned
 * Generate graphic of sum of hours for each person by week
+* Issue is it does not capture tasks assigned in other regions to our team, filtering logic needs to be improved
+* Export for individual to arrange dates from oldest to newest
 * Generate reports of quantities of items under each person by date range
 
 ## Work done
 * 21/7/22 Add to Excel the board title
 * 21/7/22 Issue not capturing data on some boards
 * 16/7/22 First revision to main branch of working code.
+
+## Future ideas
+* Create a trend function for: number tasks per person per week, or workload per person per week
 
 ## References
 * Trello api reference: https://developer.atlassian.com/cloud/trello/rest/api-group-actions/
