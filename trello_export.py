@@ -126,14 +126,14 @@ class TrelloExport():
             plt.ylabel(f'{view[0]} {view[1]}')
             plt.title("Engineering workload for next 8 weeks")
             plt.tight_layout()
-            plt.savefig(f'export_workload_{view}.png')
+            plt.savefig(f'export_workload_{view[0]}.png')
             plt.show()
             plt.close()
 
         # Export to csv
-        self.dfw = dfw                              # save to class
-        dfw.to_csv('workload.csv', index=False)        # export to csv
-        print('Export of workload saved as csv.')
+        #self.dfw = dfw                              # save to class
+        #dfw.to_csv('workload.csv', index=False)        # export to csv
+        #print('Export of workload saved as csv.')
 
 
     def export_graphics(self):
