@@ -83,40 +83,52 @@ class TrelloExport():
         dfw['Member'].replace('', np.nan, inplace=True)
         dfw.dropna(subset=['Member'], inplace=True)     # drop rows with no member assigned
         dfw['Hours'] = dfw['Hours'].astype(str).astype(int)     # convert Hours to int
-        dfw['Due'] = pd.to_datetime(dfw['Due']) - pd.to_timedelta(7, unit='d')  # transform datetime, subtrat week
+        dfw['WkStart'] = pd.to_datetime(dfw['Due']) - pd.to_timedelta(7, unit='d')  # transform datetime, subtrat week
+        dfw.drop(columns='Due', inplace=True)   # not required as we are grouping by week
         dfw = dfw.groupby(['Member', 
-            pd.Grouper(key='Due', freq='W-MON')])['Hours'].sum().reset_index().sort_values('Due')   # group and sum
+            pd.Grouper(key='WkStart', freq='W-MON')])['Hours'].sum().reset_index().sort_values('WkStart')   # group and sum
 
         # Create dataframe to eventually merge of hours avail
-        # TODO Use data from settings.json, below code tempoary
-        # dfw['weekHoursAvail'] = 38*60/100
+        member_data = []
+        for member in self.a.members:
+            member_entry = {}
+            member_entry['Member'] = member.fullName
+            member_entry['weekHours'] = int(member.weekHours)
+            member_entry['workPct'] = int(member.workPct)
+            member_data.append(member_entry)
+        df_members = pd.DataFrame(member_data)  # create pandas dictionary
+        dfw = dfw.merge(df_members, how='left', on='Member')   # merge in required columns
+        dfw['Capacity'] =  100 * dfw['Hours'] / (dfw['weekHours'] * dfw['workPct']/100)   # calculate capacity as: assigned/available %
+
 
         # Plot
-        dfw_p = pd.pivot_table(dfw, values="Hours", index="Due", columns="Member")
-        dfw_p = dfw_p.fillna(0)
-        #greater than the start date and smaller than the end date
-        start_date = np.datetime64('today', 'D') - np.timedelta64(1, 'D')
-        end_date = np.datetime64('today', 'D') + np.timedelta64(60, 'D')   
-        mask = (dfw_p.index > start_date) & (dfw_p.index <= end_date)
-        dfw_p = dfw_p.loc[mask]
+        for view in [['Capacity', '%'], ['Hours', '']]:
+            dfw_p = pd.pivot_table(dfw, values=view[0], index="WkStart", columns="Member")
+            dfw_p = dfw_p.fillna(0)
+            #greater than the start date and smaller than the end date
+            start_date = np.datetime64('today', 'D') - np.timedelta64(1, 'D')
+            end_date = np.datetime64('today', 'D') + np.timedelta64(50, 'D')   
+            mask = (dfw_p.index > start_date) & (dfw_p.index <= end_date)
+            dfw_p = dfw_p.loc[mask]
 
-        dates = dfw_p.index
-        fig, ax = plt.subplots()
-        dfw_p.plot.bar(ax=ax)
+            dates = dfw_p.index
+            fig, ax = plt.subplots()
+            dfw_p.plot.bar(ax=ax)
 
-        # Make most of the ticklabels empty so the labels don't get too crowded
-        ticklabels = ['']*len(dfw_p.index)
-        # Every 1th ticklable shows the month and day
-        ticklabels[::1] = [item.strftime('%b %d') for item in dfw_p.index[::1]]
-        ax.xaxis.set_major_formatter(ticker.FixedFormatter(ticklabels))
-        plt.gcf().autofmt_xdate()
-        
-        plt.xlabel('Week ending')
-        plt.ylabel('Hours assigned')
-        plt.title("Engineering workload for next 60 days")
-        plt.tight_layout()
-        plt.show()
-        plt.savefig('export_workload.png')
+            # Make most of the ticklabels empty so the labels don't get too crowded
+            ticklabels = ['']*len(dfw_p.index)
+            # Every 1th ticklable shows the month and day
+            ticklabels[::1] = [item.strftime('%b %d') for item in dfw_p.index[::1]]
+            ax.xaxis.set_major_formatter(ticker.FixedFormatter(ticklabels))
+            plt.gcf().autofmt_xdate()
+            
+            plt.xlabel('Week starting')
+            plt.ylabel(f'{view[0]} {view[1]}')
+            plt.title("Engineering workload for next 8 weeks")
+            plt.tight_layout()
+            plt.savefig(f'export_workload_{view}.png')
+            plt.show()
+            plt.close()
 
         # Export to csv
         self.dfw = dfw                              # save to class

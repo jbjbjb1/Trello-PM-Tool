@@ -13,12 +13,13 @@ This will be done by extracting every checklist item out of every card in a Trel
 * When selecting to export a report for yourself, in the settings file you need to be the first user listed in "filter_users"
 
 ## Improvements
-* Generate graphic of sum of hours for each person by week
 * Issue is it does not capture tasks assigned in other regions to our team, filtering logic needs to be improved
 * Export for individual to arrange dates from oldest to newest
 * Generate reports of quantities of items under each person by date range
+* Raise error to try again if csv file is open with the app wants to overwrite it
 
 ## Work done
+* 1/8/22 Generate graphic of sum of hours for each person by week (fixed x-axis to be Week starting)
 * 21/7/22 Add to Excel the board title
 * 21/7/22 Issue not capturing data on some boards
 * 16/7/22 First revision to main branch of working code.
