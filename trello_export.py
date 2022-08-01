@@ -151,6 +151,7 @@ class TrelloExport():
         plt.tight_layout()
         plt.savefig('export_count.png')
         #plt.show()
-        print('Plot of counts saved.')
+        plt.close()
+        print('Plot saved.')
 
         

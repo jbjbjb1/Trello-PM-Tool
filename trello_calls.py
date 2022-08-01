@@ -57,7 +57,7 @@ class TrelloCalls():
             with open(loal_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
         else:
-            print('Loaded api')
+            print('Loaded api ', end='')
             data = self.get_response(api_call, fname)
         return data
 
