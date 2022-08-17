@@ -17,6 +17,7 @@ This will be done by extracting every checklist item out of every card in a Trel
 * Export for individual to arrange dates from oldest to newest
 * Generate reports of quantities of items under each person by date range
 * Raise error to try again if csv file is open with the app wants to overwrite it
+* Sum up backlog to current week - otherwise does not show not done old tasks
 
 ## Work done
 * 1/8/22 Generate graphic of sum of hours for each person by week (fixed x-axis to be Week starting)
